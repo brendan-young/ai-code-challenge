@@ -3,6 +3,8 @@ import dotenv from 'dotenv';
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import OpenAI from 'openai';
+import { ResponseInput, ResponseStreamEvent } from 'openai/resources/responses/responses';
+import { Stream } from 'openai/core/streaming';
 
 // Load environment variables from the project root first, then allow local overrides in server/.env
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
@@ -76,23 +78,23 @@ app.post('/api/chat', async (req: Request, res: Response) => {
     return;
   }
 
-  const chatMessages: ChatCompletionMessageParam[] = basicMessages.map((message) => ({
+  const chatMessages: ResponseInput = basicMessages.map((message) => ({
     role: message.role,
     content: message.content,
   }));
 
-  let stream: ChatStream | null = null;
+  let stream: Stream<ResponseStreamEvent> | null = null;
 
   try {
     // If you are using the free tier in groq, beware that there are rate limits.
     // For more info, check out:
     //   https://console.groq.com/docs/rate-limits
-    stream = (await openai.chat.completions.create({
+    stream = await openai.responses.create({
       model: 'openai/gpt-oss-120b',
-      reasoning_effort: 'low',
-      messages: chatMessages,
+      reasoning: { effort: 'low' },
+      input: chatMessages,
       stream: true,
-    })) as ChatStream;
+    });
 
     res.setHeader('Content-Type', 'text/plain; charset=utf-8');
     res.setHeader('Transfer-Encoding', 'chunked');
@@ -113,11 +115,13 @@ app.post('/api/chat', async (req: Request, res: Response) => {
     req.on('close', abort);
     req.on('error', abort);
 
-    for await (const part of stream) {
-      const content = part.choices?.[0]?.delta?.content;
-      if (content) {
-        res.write(content);
-      }
+    for await (const event of stream) {
+      if (event.type !== 'response.output_text.delta') continue;
+
+      const delta = event.delta;
+      if (typeof delta !== 'string' || !delta.length) continue;
+
+      res.write(delta);
     }
 
     res.end();
