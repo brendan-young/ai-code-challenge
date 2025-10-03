@@ -50,7 +50,9 @@ This assessment is intentionally open ended. We're looking for the following:
 
 ## Project scaffold Structure
 
-A two-part web application consisting of a TypeScript React frontend and a TypeScript Express backend. The chat interface streams responses from OpenAI's GPT-4.1 model, while a placeholder configuration page is ready for future settings.
+> :bulb: The current scaffhold utilizes OpenAI's GPT-OSS120b model from groq (A fast inference API with limited free access) Click [here](https://groq.com/) to register an account.
+
+A two-part web application consisting of a TypeScript React frontend and a TypeScript Express backend. The chat interface streams responses from OpenAI's model, while a placeholder configuration page is ready for future settings.
 
 
 - `server` — Express API that proxies streaming requests to OpenAI.
@@ -67,6 +69,7 @@ A two-part web application consisting of a TypeScript React frontend and a TypeS
 2. **Environment variables**
    - Copy `.env.example` to `.env` at the project root.
    - Populate the following values:
+     - `OPENAI_BASE_URL`: The base url for the openai SDK (Currently points to groq)
      - `OPENAI_API_KEY`: your OpenAI API key.
      - `PORT`: port for the Express server (defaults to `8999`).
      - `VITE_API_BASE_URL`: frontend URL used to reach the backend (defaults to `http://localhost:8999`).
