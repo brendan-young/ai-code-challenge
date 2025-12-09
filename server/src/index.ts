@@ -104,7 +104,7 @@ Input format:
 
 Rule handling:
 - Match the triple against the rules below (case-insensitive compares for equals/oneOf; includes for keywords).
-- If a rule matches, answer with the assignee’s name/email only and a small description. Do NOT ask for more info.
+- If a rule matches, answer with a short sentance that includes the department, location and requestType. Do NOT ask for more info. Example: "For Sales contract reviews in Australia email xyz@acme.corp"
 - If no rule matches but all three fields are present, return the fallback contact: legal@acme.com.
 - If fewer than three fields are present, ask only for the missing fields (request type, department, location).
 If no rule matches, use fallback contact legal@acme.com.
