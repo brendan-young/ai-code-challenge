@@ -98,9 +98,15 @@ app.post('/api/chat', async (req: Request, res: Response) => {
 			.join('\n') || 'No active rules. Use fallback contact: legal@acme.corp';
 
 	const systemPrompt = `
-You are Acme’s legal triage assistant.
-Ask for missing fields (request type, department, location).
-Use the rules below.
+Input format:
+- If the user gives a comma-separated triple, treat it as: requestType, department, location (in that order). Example: “legal contract, Legal, Argentina”.
+- Normalize case/spacing; treat “legal” and “Legal” as the same.
+
+Rule handling:
+- Match the triple against the rules below (case-insensitive compares for equals/oneOf; includes for keywords).
+- If a rule matches, answer with the assignee’s name/email only and a small description. Do NOT ask for more info.
+- If no rule matches but all three fields are present, return the fallback contact: legal@acme.com.
+- If fewer than three fields are present, ask only for the missing fields (request type, department, location).
 If no rule matches, use fallback contact legal@acme.com.
 Rules:
 ${rulesSummary}

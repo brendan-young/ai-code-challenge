@@ -15,6 +15,11 @@
 				"field": "location",
 				"operator": "equals",
 				"value": "United States"
+			},
+			{
+				"field": "department",
+				"operator": "equals",
+				"value": "legal"
 			}
 		],
 		"assignee": {
@@ -50,7 +55,7 @@
 			"name": "Mark Hoppus",
 			"email": "mark@acme.com"
 		},
-		"notes": ""
+		"notes": "legal contracts in Argentina go to Mark"
 	},
 	{
 		"id": "a84fbef9-65f7-46e7-97a8-805b9d178ad1",
