@@ -1,29 +1,5 @@
 [
   {
-    "id": "c1fe7dd9-0fa0-44b4-8c62-11a94d8712d9",
-    "createdAt": "2025-12-09T19:13:24.138Z",
-    "updatedAt": "2025-12-09T19:13:24.138Z",
-    "name": "Employment Contract AU",
-    "active": true,
-    "conditions": [
-      {
-        "field": "requestType",
-        "operator": "equals",
-        "value": "employment contract"
-      },
-      {
-        "field": "location",
-        "operator": "equals",
-        "value": "Australia"
-      }
-    ],
-    "assignee": {
-      "name": "Norman Osborn",
-      "email": "norman@acme.corp"
-    },
-    "notes": "Employment contracts in AU go to Norman"
-  },
-  {
     "id": "b08b12d2-8a4f-4f11-a917-9f608e9b5ab8",
     "createdAt": "2025-12-09T19:13:24.138Z",
     "updatedAt": "2025-12-09T19:13:24.138Z",

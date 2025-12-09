@@ -1,18 +1,11 @@
 import { FormEvent, useEffect, useMemo, useState } from 'react';
+import type { RuleDraft } from '../api/rules';
 import '../styles/modal.styles.css';
 
 export type ConditionDraft = {
 	field: string;
 	operator: string;
 	value: string | string[];
-};
-
-export type RuleDraft = {
-	name: string;
-	active: boolean;
-	conditions: ConditionDraft[];
-	assignee: { name: string; email: string };
-	notes?: string;
 };
 
 type RuleModalProps = {

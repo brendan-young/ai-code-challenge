@@ -2,20 +2,11 @@ import '../styles/configure-page.styles.css';
 
 import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'react-toastify';
-import RuleModal, { RuleDraft } from '../components/RuleModal';
-import RuleCard, { RuleCardData } from '../components/RuleCard';
+import RuleModal from '../components/RuleModal';
+import RuleCard from '../components/RuleCard';
 import ConfirmDeleteModal from '../components/ConfirmDeleteModal';
+import { createRule, deleteRule, listRules, Rule, RuleDraft, updateRule } from '../api/rules';
 import '../styles/rule-card.styles.css';
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8999';
-
-type Condition = {
-	field: string;
-	operator: string;
-	value: string | string[];
-};
-
-type Rule = RuleCardData;
 
 export default function ConfigurePage() {
 	const [rules, setRules] = useState<Rule[]>([]);
@@ -36,19 +27,8 @@ export default function ConfigurePage() {
 		setLoading(true);
 		setError(null);
 		try {
-			const res = await fetch(`${API_BASE_URL}/api/rules`);
-			if (!res.ok) {
-				throw new Error('Failed to fetch rules');
-			}
-			const data = (await res.json()) as Rule[];
-			const normalized = data.map((rule) => ({
-				...rule,
-				conditions: rule.conditions.map((cond) => ({
-					...cond,
-					operator: cond.operator ?? (cond as { op?: string }).op ?? '',
-				})),
-			}));
-			setRules(normalized);
+			const fetched = await listRules();
+			setRules(fetched);
 		} catch (err) {
 			const message = err instanceof Error ? err.message : 'Unable to load rules';
 			setError(message);
@@ -67,17 +47,7 @@ export default function ConfigurePage() {
 		setSaving(true);
 		setModalError(null);
 		try {
-			const res = await fetch(`${API_BASE_URL}/api/rules`, {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify(draft),
-			});
-
-			if (!res.ok) {
-				throw new Error('Failed to create rule');
-			}
-
-			const created = (await res.json()) as Rule;
+			const created = await createRule(draft);
 			setRules((prev) => [...prev, created]);
 			setIsModalOpen(false);
 			toast.success(`Created rule "${created.name}"`);
@@ -98,17 +68,7 @@ export default function ConfigurePage() {
 		setSaving(true);
 		setModalError(null);
 		try {
-			const res = await fetch(`${API_BASE_URL}/api/rules/${editingRuleId}`, {
-				method: 'PUT',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify(draft),
-			});
-
-			if (!res.ok) {
-				throw new Error('Failed to update rule');
-			}
-
-			const updated = (await res.json()) as Rule;
+			const updated = await updateRule(editingRuleId, draft);
 			setRules((prev) => prev.map((rule) => (rule.id === updated.id ? updated : rule)));
 			setIsModalOpen(false);
 			setEditingRuleId(null);
@@ -164,14 +124,7 @@ export default function ConfigurePage() {
 		setDeleting(true);
 		setDeleteError(null);
 		try {
-			const res = await fetch(`${API_BASE_URL}/api/rules/${deleteTarget.id}`, {
-				method: 'DELETE',
-			});
-
-			if (!res.ok) {
-				throw new Error('Failed to delete rule');
-			}
-
+			await deleteRule(deleteTarget.id);
 			setRules((prev) => prev.filter((rule) => rule.id !== deleteTarget.id));
 			toast.success(`Deleted rule "${deleteTarget.name}"`);
 			setIsDeleteModalOpen(false);
@@ -219,7 +172,12 @@ export default function ConfigurePage() {
 			{!loading && !error && rules.length > 0 && (
 				<div className="rule-list">
 					{rules.map((rule, idx) => (
-						<RuleCard key={rule.id ?? idx} rule={rule} onEdit={openEditModal} onDelete={openDeleteModal} />
+						<RuleCard
+							key={rule.id ?? idx}
+							rule={rule}
+							onEdit={openEditModal}
+							onDelete={openDeleteModal}
+						/>
 					))}
 				</div>
 			)}
