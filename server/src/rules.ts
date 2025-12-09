@@ -1,4 +1,4 @@
-import fs from 'fs/promises';
+import { readFileSync } from 'fs';
 import path from 'path';
 import crypto from 'crypto';
 
@@ -34,45 +34,30 @@ const withDefaults = (rule: Partial<Rule> & RuleInput): Rule => ({
 	...rule,
 });
 
-async function loadRaw(): Promise<Rule[]> {
-	const raw = await fs.readFile(RULES_PATH, 'utf8');
-	const parsed = JSON.parse(raw);
-	if (!Array.isArray(parsed)) return [];
-	return parsed.map((r) => withDefaults(r));
-}
-
-async function save(rules: Rule[]) {
-	await fs.mkdir(path.dirname(RULES_PATH), { recursive: true });
-	await fs.writeFile(RULES_PATH, JSON.stringify(rules, null, 2), 'utf8');
-}
+const rawSeed = readFileSync(RULES_PATH, 'utf8');
+const parsedSeed = JSON.parse(rawSeed);
+let rules: Rule[] = Array.isArray(parsedSeed) ? parsedSeed.map((r) => withDefaults(r)) : [];
 
 export async function listRules(): Promise<Rule[]> {
-	const rules = await loadRaw();
 	return rules;
 }
 
 export async function createRule(input: RuleInput): Promise<Rule> {
-	const rules = await loadRaw();
 	const rule = withDefaults(input);
 	rules.push(rule);
-	await save(rules);
 	return rule;
 }
 
-export async function updateRule(id: string, patch: Partial<RuleInput>): Promise<Rule | null> {
-	const rules = await loadRaw();
+export async function updateRule(id: string, data: Partial<RuleInput>): Promise<Rule | null> {
 	const idx = rules.findIndex((r) => r.id === id);
 	if (idx === -1) return null;
-	const merged = { ...rules[idx], ...patch, updatedAt: new Date().toISOString() };
+	const merged = { ...rules[idx], ...data, updatedAt: new Date().toISOString() };
 	rules[idx] = merged;
-	await save(rules);
 	return merged;
 }
 
 export async function deleteRule(id: string): Promise<boolean> {
-	const rules = await loadRaw();
-	const next = rules.filter((r) => r.id !== id);
-	if (next.length === rules.length) return false;
-	await save(next);
-	return true;
+	const before = rules.length;
+	rules = rules.filter((r) => r.id !== id);
+	return rules.length !== before;
 }

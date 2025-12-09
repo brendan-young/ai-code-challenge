@@ -20,7 +20,13 @@ const createMessage = (overrides?: Partial<ChatMessage>): ChatMessage => ({
 });
 
 export default function ChatPage() {
-	const [messages, setMessages] = useState<ChatMessage[]>([]);
+	const [messages, setMessages] = useState<ChatMessage[]>(() => [
+		createMessage({
+			role: 'assistant',
+			content:
+				'This is the legal front door AI Service — please start with your request type, department, and location.',
+		}),
+	]);
 	const [input, setInput] = useState('');
 	const [isStreaming, setIsStreaming] = useState(false);
 	const [error, setError] = useState<string | null>(null);

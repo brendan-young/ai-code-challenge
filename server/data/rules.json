@@ -1,84 +1,234 @@
 [
-  {
-    "id": "b08b12d2-8a4f-4f11-a917-9f608e9b5ab8",
-    "createdAt": "2025-12-09T19:13:24.138Z",
-    "updatedAt": "2025-12-09T19:13:24.138Z",
-    "name": "NDA Contract US",
-    "active": true,
-    "conditions": [
-      {
-        "field": "requestType",
-        "operator": "equals",
-        "value": "NDA contract"
-      },
-      {
-        "field": "location",
-        "operator": "equals",
-        "value": "United States"
-      }
-    ],
-    "assignee": {
-      "name": "Harry Osborn",
-      "email": "harry@acme.corp"
-    },
-    "notes": "NDA contracts in US go to Harry"
-  },
-  {
-    "id": "8541edad-7219-47d0-bc9d-6c9441c48f81",
-    "createdAt": "2025-12-09T19:13:24.139Z",
-    "updatedAt": "2025-12-09T19:13:24.139Z",
-    "name": "Legal Argentina",
-    "active": true,
-    "conditions": [
-      {
-        "field": "requestType",
-        "operator": "equals",
-        "value": "legal contract"
-      },
-      {
-        "field": "location",
-        "operator": "equals",
-        "value": "Argentina"
-      },
-      {
-        "field": "department",
-        "operator": "equals",
-        "value": "Legal"
-      }
-    ],
-    "assignee": {
-      "name": "Mark Hoppus",
-      "email": "mark@acme.com"
-    },
-    "notes": ""
-  },
-  {
-    "id": "a84fbef9-65f7-46e7-97a8-805b9d178ad1",
-    "createdAt": "2025-12-09T20:02:25.643Z",
-    "updatedAt": "2025-12-09T20:02:53.863Z",
-    "name": "Employment NZ",
-    "active": true,
-    "conditions": [
-      {
-        "field": "requestType",
-        "operator": "equals",
-        "value": "employment contract"
-      },
-      {
-        "field": "location",
-        "operator": "equals",
-        "value": "New Zealand"
-      },
-      {
-        "field": "department",
-        "operator": "equals",
-        "value": "Employment"
-      }
-    ],
-    "assignee": {
-      "name": "Travis Barker",
-      "email": "travis@acme.com"
-    },
-    "notes": "Employment contracts in NZ go to Tom"
-  }
+	{
+		"id": "b08b12d2-8a4f-4f11-a917-9f608e9b5ab8",
+		"createdAt": "2025-12-09T19:13:24.138Z",
+		"updatedAt": "2025-12-09T19:13:24.138Z",
+		"name": "NDA Contract US",
+		"active": true,
+		"conditions": [
+			{
+				"field": "requestType",
+				"operator": "equals",
+				"value": "NDA contract"
+			},
+			{
+				"field": "location",
+				"operator": "equals",
+				"value": "United States"
+			}
+		],
+		"assignee": {
+			"name": "Harry Osborn",
+			"email": "harry@acme.corp"
+		},
+		"notes": "NDA contracts in US go to Harry"
+	},
+	{
+		"id": "8541edad-7219-47d0-bc9d-6c9441c48f81",
+		"createdAt": "2025-12-09T19:13:24.139Z",
+		"updatedAt": "2025-12-09T19:13:24.139Z",
+		"name": "Legal Argentina",
+		"active": true,
+		"conditions": [
+			{
+				"field": "requestType",
+				"operator": "equals",
+				"value": "legal contract"
+			},
+			{
+				"field": "location",
+				"operator": "equals",
+				"value": "Argentina"
+			},
+			{
+				"field": "department",
+				"operator": "equals",
+				"value": "Legal"
+			}
+		],
+		"assignee": {
+			"name": "Mark Hoppus",
+			"email": "mark@acme.com"
+		},
+		"notes": ""
+	},
+	{
+		"id": "a84fbef9-65f7-46e7-97a8-805b9d178ad1",
+		"createdAt": "2025-12-09T20:02:25.643Z",
+		"updatedAt": "2025-12-09T20:02:53.863Z",
+		"name": "Employment NZ",
+		"active": true,
+		"conditions": [
+			{
+				"field": "requestType",
+				"operator": "equals",
+				"value": "employment contract"
+			},
+			{
+				"field": "location",
+				"operator": "equals",
+				"value": "New Zealand"
+			},
+			{
+				"field": "department",
+				"operator": "equals",
+				"value": "Employment"
+			}
+		],
+		"assignee": {
+			"name": "Travis Barker",
+			"email": "travis@acme.com"
+		},
+		"notes": "Employment contracts in NZ go to Travis"
+	},
+	{
+		"id": "d2c4d9b1-6f23-4f6c-9f32-cf0a7f0e2b17",
+		"createdAt": "2025-12-09T21:05:10.001Z",
+		"updatedAt": "2025-12-09T21:05:10.001Z",
+		"name": "Sales APAC",
+		"active": true,
+		"conditions": [
+			{
+				"field": "requestType",
+				"operator": "equals",
+				"value": "sales contract"
+			},
+			{
+				"field": "location",
+				"operator": "equals",
+				"value": "Singapore"
+			},
+			{
+				"field": "department",
+				"operator": "equals",
+				"value": "Sales"
+			}
+		],
+		"assignee": {
+			"name": "Peter Parker",
+			"email": "peter@acme.com"
+		},
+		"notes": "Sales contracts in Singapore go to Peter"
+	},
+	{
+		"id": "41e4f9b6-2b11-4d6e-ae04-6c459d2dd7f9",
+		"createdAt": "2025-12-09T21:06:22.314Z",
+		"updatedAt": "2025-12-09T21:06:22.314Z",
+		"name": "Privacy Canada",
+		"active": true,
+		"conditions": [
+			{
+				"field": "requestType",
+				"operator": "equals",
+				"value": "privacy review"
+			},
+			{
+				"field": "location",
+				"operator": "equals",
+				"value": "Canada"
+			},
+			{
+				"field": "department",
+				"operator": "equals",
+				"value": "Privacy"
+			}
+		],
+		"assignee": {
+			"name": "Gwen Stacy",
+			"email": "gwen@acme.com"
+		},
+		"notes": "Privacy reviews in Canada go to Gwen"
+	},
+	{
+		"id": "9a3c2af0-6e6d-4f05-8fdf-5a7d02b6e4e2",
+		"createdAt": "2025-12-09T21:07:48.529Z",
+		"updatedAt": "2025-12-09T21:07:48.529Z",
+		"name": "Marketing UK NDA",
+		"active": true,
+		"conditions": [
+			{
+				"field": "requestType",
+				"operator": "equals",
+				"value": "marketing NDA"
+			},
+			{
+				"field": "location",
+				"operator": "equals",
+				"value": "United Kingdom"
+			},
+			{
+				"field": "department",
+				"operator": "equals",
+				"value": "Marketing"
+			}
+		],
+		"assignee": {
+			"name": "Mary Jane",
+			"email": "mj@acme.com"
+		},
+		"notes": "Marketing NDAs in the UK go to MJ"
+	},
+	{
+		"id": "f0e3bb95-9a0f-448e-9cb8-78db2088b5e8",
+		"createdAt": "2025-12-09T21:09:12.947Z",
+		"updatedAt": "2025-12-09T21:09:12.947Z",
+		"name": "Procurement Germany",
+		"active": true,
+		"conditions": [
+			{
+				"field": "requestType",
+				"operator": "equals",
+				"value": "vendor agreement"
+			},
+			{
+				"field": "location",
+				"operator": "equals",
+				"value": "Germany"
+			},
+			{
+				"field": "department",
+				"operator": "equals",
+				"value": "Procurement"
+			}
+		],
+		"assignee": {
+			"name": "Otto Octavius",
+			"email": "otto@acme.com"
+		},
+		"notes": "Vendor agreements in Germany go to Otto"
+	},
+	{
+		"id": "7d2f4e1a-3b26-4b82-a8d8-f4c1e9f7cf6c",
+		"createdAt": "2025-12-09T21:10:45.381Z",
+		"updatedAt": "2025-12-09T21:10:45.381Z",
+		"name": "Litigation US West",
+		"active": true,
+		"conditions": [
+			{
+				"field": "requestType",
+				"operator": "equals",
+				"value": "litigation matter"
+			},
+			{
+				"field": "location",
+				"operator": "equals",
+				"value": "United States"
+			},
+			{
+				"field": "department",
+				"operator": "equals",
+				"value": "Litigation"
+			},
+			{
+				"field": "keywords",
+				"operator": "includes",
+				"value": ["California", "Oregon", "Washington"]
+			}
+		],
+		"assignee": {
+			"name": "Stephen Strange",
+			"email": "stephen@acme.com"
+		},
+		"notes": "US West litigation matters go to Stephen"
+	}
 ]
