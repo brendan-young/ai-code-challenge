@@ -89,7 +89,7 @@ app.post('/api/chat', async (req: Request, res: Response) => {
 					`-  ${rule.name}: IF ${rule.conditions
 						.map(
 							(condition) =>
-								`${condition.field} ${condition.op} ${
+								`${condition.field} ${condition.operator} ${
 									Array.isArray(condition.value) ? condition.value.join(', ') : condition.value
 								}`
 						)
@@ -99,9 +99,9 @@ app.post('/api/chat', async (req: Request, res: Response) => {
 
 	const systemPrompt = `
 You are Acme’s legal triage assistant.
-Ask for missing fields (request type, department, location, seniority).
-Use the rules below. Highest priority first; if tie, prefer more conditions; else newest.
-If no rule matches, use fallback contact.
+Ask for missing fields (request type, department, location).
+Use the rules below.
+If no rule matches, use fallback contact legal@acme.com.
 Rules:
 ${rulesSummary}
 `;

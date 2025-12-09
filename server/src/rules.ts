@@ -7,8 +7,8 @@ const RULES_PATH = path.resolve(__dirname, '../data/rules.json');
 export type ConditionOperator = 'equals' | 'oneOf' | 'includes';
 
 type RuleCondition = {
-	field: 'requestType' | 'department' | 'location' | 'seniority' | 'keywords';
-	op: ConditionOperator;
+	field: 'requestType' | 'department' | 'location' | 'keywords';
+	operator: ConditionOperator;
 	value: string | string[]; // keywords can be array
 };
 

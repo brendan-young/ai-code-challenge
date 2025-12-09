@@ -1,6 +1,8 @@
 import { NavLink, Navigate, Route, Routes } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
 import ChatPage from "./pages/ChatPage";
 import ConfigurePage from "./pages/ConfigurePage";
+import "react-toastify/dist/ReactToastify.css";
 import "./App.css";
 
 export default function App() {
@@ -31,6 +33,7 @@ export default function App() {
           <Route path="*" element={<Navigate to="/chat" replace />} />
         </Routes>
       </main>
+      <ToastContainer position="bottom-right" newestOnTop closeOnClick pauseOnFocusLoss />
     </div>
   );
 }
