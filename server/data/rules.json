@@ -1,0 +1,46 @@
+[
+	{
+		"id": "f3c1b8e4-9d29-4ed5-9b4c-b91cb232af67",
+		"name": "Sales AU",
+		"active": true,
+		"conditions": [
+			{ "field": "requestType", "op": "equals", "value": "sales_contract" },
+			{ "field": "location", "op": "equals", "value": "Australia" }
+		],
+		"assignee": { "name": "Peter Parker", "email": "peter@acme.corp" },
+		"notes": "Sales contracts in AU go to Peter"
+	},
+	{
+		"id": "a812ef8b-1d43-42f8-9424-3c6f4dbacb3f",
+		"name": "Employment Contract US",
+		"active": true,
+		"conditions": [
+			{ "field": "requestType", "op": "equals", "value": "employment_contract" },
+			{ "field": "location", "op": "equals", "value": "United States" }
+		],
+		"assignee": { "name": "MJ Watson", "email": "mj@acme.corp" },
+		"notes": "Employment contracts in US go to MJ"
+	},
+	{
+		"id": "c1fe7dd9-0fa0-44b4-8c62-11a94d8712d9",
+		"name": "Employment Contract AU",
+		"active": true,
+		"conditions": [
+			{ "field": "requestType", "op": "equals", "value": "employment_contract" },
+			{ "field": "location", "op": "equals", "value": "Australia" }
+		],
+		"assignee": { "name": "Norman Osborn", "email": "norman@acme.corp" },
+		"notes": "Employment contracts in AU go to Norman"
+	},
+	{
+		"id": "b08b12d2-8a4f-4f11-a917-9f608e9b5ab8",
+		"name": "NDA Contract US",
+		"active": true,
+		"conditions": [
+			{ "field": "requestType", "op": "equals", "value": "NDA_contract" },
+			{ "field": "location", "op": "equals", "value": "United States" }
+		],
+		"assignee": { "name": "Harry Osborn", "email": "harry@acme.corp" },
+		"notes": "NDA contracts in US go to Harry"
+	}
+]

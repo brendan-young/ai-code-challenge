@@ -6,12 +6,16 @@ import OpenAI from 'openai';
 import { ResponseInput, ResponseStreamEvent } from 'openai/resources/responses/responses';
 import { Stream } from 'openai/core/streaming';
 
+import { Rule } from './rules';
+
+import { listRules, createRule, updateRule, deleteRule } from './rules';
+
 // Load environment variables from the project root first, then allow local overrides in server/.env
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 if (!process.env.OPENAI_API_KEY) {
-  console.warn('Warning: OPENAI_API_KEY is not set. Streaming requests will fail.');
+	console.warn('Warning: OPENAI_API_KEY is not set. Streaming requests will fail.');
 }
 
 const app = express();
@@ -20,7 +24,10 @@ const port = Number.parseInt(process.env.PORT ?? '5000', 10);
 app.use(cors());
 app.use(express.json({ limit: '1mb' }));
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY, baseURL: process.env.OPENAI_BASE_URL });
+const openai = new OpenAI({
+	apiKey: process.env.OPENAI_API_KEY,
+	baseURL: process.env.OPENAI_BASE_URL,
+});
 
 type ChatCompletionMessageParam = OpenAI.Chat.Completions.ChatCompletionMessageParam;
 type StreamChunk = OpenAI.Chat.Completions.ChatCompletionChunk;
@@ -32,112 +39,161 @@ type BasicMessage = { role: BasicRole; content: string };
 const allowedRoles: ReadonlySet<BasicRole> = new Set<BasicRole>(['system', 'user', 'assistant']);
 
 const sanitizeMessages = (messages: unknown): BasicMessage[] => {
-  if (!Array.isArray(messages)) {
-    return [];
-  }
+	if (!Array.isArray(messages)) {
+		return [];
+	}
 
-  const sanitized: BasicMessage[] = [];
+	const sanitized: BasicMessage[] = [];
 
-  for (const raw of messages) {
-    if (!raw || typeof raw !== 'object') {
-      continue;
-    }
+	for (const raw of messages) {
+		if (!raw || typeof raw !== 'object') {
+			continue;
+		}
 
-    const maybeMessage = raw as Record<string, unknown>;
-    const role = maybeMessage.role;
-    const content = maybeMessage.content;
+		const maybeMessage = raw as Record<string, unknown>;
+		const role = maybeMessage.role;
+		const content = maybeMessage.content;
 
-    if (typeof role !== 'string' || typeof content !== 'string') {
-      continue;
-    }
+		if (typeof role !== 'string' || typeof content !== 'string') {
+			continue;
+		}
 
-    if (!allowedRoles.has(role as BasicRole)) {
-      continue;
-    }
+		if (!allowedRoles.has(role as BasicRole)) {
+			continue;
+		}
 
-    sanitized.push({ role: role as BasicRole, content });
-  }
+		sanitized.push({ role: role as BasicRole, content });
+	}
 
-  return sanitized;
+	return sanitized;
 };
 
 app.get('/health', (_req: Request, res: Response) => {
-  res.json({ status: 'ok' });
+	res.json({ status: 'ok' });
 });
 
 app.post('/api/chat', async (req: Request, res: Response) => {
-  if (!process.env.OPENAI_API_KEY) {
-    res.status(500).json({ error: 'Server missing OpenAI credentials' });
-    return;
-  }
+	if (!process.env.OPENAI_API_KEY) {
+		res.status(500).json({ error: 'Server missing OpenAI credentials' });
+		return;
+	}
 
-  const basicMessages = sanitizeMessages(req.body?.messages);
+	const basicMessages = sanitizeMessages(req.body?.messages);
 
-  if (basicMessages.length === 0) {
-    res.status(400).json({ error: 'messages array is empty or invalid' });
-    return;
-  }
+	const rules = await listRules(); // from rules service
 
-  const chatMessages: ResponseInput = basicMessages.map((message) => ({
-    role: message.role,
-    content: message.content,
-  }));
+	const rulesSummary =
+		rules
+			.map(
+				(rule: Rule) =>
+					`-  ${rule.name}: IF ${rule.conditions
+						.map(
+							(condition) =>
+								`${condition.field} ${condition.op} ${
+									Array.isArray(condition.value) ? condition.value.join(', ') : condition.value
+								}`
+						)
+						.join(' AND ')} THEN ${rule.assignee.email}`
+			)
+			.join('\n') || 'No active rules. Use fallback contact: legal@acme.corp';
 
-  let stream: Stream<ResponseStreamEvent> | null = null;
+	const systemPrompt = `
+You are Acme’s legal triage assistant.
+Ask for missing fields (request type, department, location, seniority).
+Use the rules below. Highest priority first; if tie, prefer more conditions; else newest.
+If no rule matches, use fallback contact.
+Rules:
+${rulesSummary}
+`;
 
-  try {
-    // If you are using the free tier in groq, beware that there are rate limits.
-    // For more info, check out:
-    //   https://console.groq.com/docs/rate-limits
-    stream = await openai.responses.create({
-      model: 'openai/gpt-oss-120b',
-      reasoning: { effort: 'low' },
-      input: chatMessages,
-      stream: true,
-    });
+	const chatMessages: ResponseInput = [
+		{ role: 'system', content: systemPrompt },
+		...basicMessages.map(({ role, content }) => ({ role, content })),
+	];
 
-    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
-    res.setHeader('Transfer-Encoding', 'chunked');
-    res.setHeader('Cache-Control', 'no-cache');
-    res.setHeader('Connection', 'keep-alive');
-    res.setHeader('X-Accel-Buffering', 'no');
+	if (basicMessages.length === 0) {
+		res.status(400).json({ error: 'messages array is empty or invalid' });
+		return;
+	}
 
-    (res as Response & { flushHeaders?: () => void }).flushHeaders?.();
+	let stream: Stream<ResponseStreamEvent> | null = null;
 
-    const abort = () => {
-      try {
-        stream?.controller?.abort?.();
-      } catch (abortError) {
-        console.error('Error aborting OpenAI stream:', abortError);
-      }
-    };
+	try {
+		// If you are using the free tier in groq, beware that there are rate limits.
+		// For more info, check out:
+		//   https://console.groq.com/docs/rate-limits
+		stream = await openai.responses.create({
+			model: 'openai/gpt-oss-120b',
+			reasoning: { effort: 'low' },
+			input: chatMessages,
+			stream: true,
+		});
 
-    req.on('close', abort);
-    req.on('error', abort);
+		res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+		res.setHeader('Transfer-Encoding', 'chunked');
+		res.setHeader('Cache-Control', 'no-cache');
+		res.setHeader('Connection', 'keep-alive');
+		res.setHeader('X-Accel-Buffering', 'no');
 
-    for await (const event of stream) {
-      if (event.type !== 'response.output_text.delta') continue;
+		(res as Response & { flushHeaders?: () => void }).flushHeaders?.();
 
-      const delta = event.delta;
-      if (typeof delta !== 'string' || !delta.length) continue;
+		const abort = () => {
+			try {
+				stream?.controller?.abort?.();
+			} catch (abortError) {
+				console.error('Error aborting OpenAI stream:', abortError);
+			}
+		};
 
-      res.write(delta);
-    }
+		req.on('close', abort);
+		req.on('error', abort);
 
-    res.end();
-  } catch (error) {
-    console.error('Streaming error:', error);
+		for await (const event of stream) {
+			if (event.type !== 'response.output_text.delta') continue;
 
-    if (!res.headersSent) {
-      res.status(500).json({ error: 'Failed to stream response' });
-      return;
-    }
+			const delta = event.delta;
+			if (typeof delta !== 'string' || !delta.length) continue;
 
-    res.write('\n[Stream error]\n');
-    res.end();
-  }
+			res.write(delta);
+		}
+
+		res.end();
+	} catch (error) {
+		console.error('Streaming error:', error);
+
+		if (!res.headersSent) {
+			res.status(500).json({ error: 'Failed to stream response' });
+			return;
+		}
+
+		res.write('\n[Stream error]\n');
+		res.end();
+	}
+});
+
+// GET all
+app.get('/api/rules', async (_req, res) => res.json(await listRules()));
+
+// POST create
+app.post('/api/rules', async (req: Request, res: Response) => {
+	const rule = await createRule(req.body); // add validation here
+	res.status(201).json(rule);
+});
+
+// PUT update
+app.put('/api/rules/:id', async (req: Request, res: Response) => {
+	const updated = await updateRule(req.params.id, req.body);
+	if (!updated) return res.status(404).json({ error: 'Not found' });
+	res.json(updated);
+});
+
+// DELETE
+app.delete('/api/rules/:id', async (req: Request, res: Response) => {
+	const ok = await deleteRule(req.params.id);
+	if (!ok) return res.status(404).json({ error: 'Not found' });
+	res.status(204).end();
 });
 
 app.listen(port, () => {
-  console.log(`Server listening on port ${port}`);
+	console.log(`Server listening on port ${port}`);
 });
