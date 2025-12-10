@@ -58,15 +58,12 @@ export default function RuleModal({
 		}
 	}, [open, initialValue]);
 
-	const conditionValue = useMemo(
-		() => ({
-			requestType: draft.conditions.find((c) => c.field === 'requestType')?.value ?? '',
-			location: draft.conditions.find((c) => c.field === 'location')?.value ?? '',
-			department: draft.conditions.find((c) => c.field === 'department')?.value ?? '',
-			keywords: draft.conditions.find((c) => c.field === 'keywords')?.value ?? '',
-		}),
-		[draft.conditions]
-	);
+	const conditionValue = {
+		requestType: draft.conditions.find((c) => c.field === 'requestType')?.value ?? '',
+		location: draft.conditions.find((c) => c.field === 'location')?.value ?? '',
+		department: draft.conditions.find((c) => c.field === 'department')?.value ?? '',
+		keywords: draft.conditions.find((c) => c.field === 'keywords')?.value ?? '',
+	};
 
 	const updateCondition = (field: string, value: string | string[], operator = 'equals') => {
 		setDraft((prev) => {
