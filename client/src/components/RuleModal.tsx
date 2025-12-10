@@ -1,6 +1,16 @@
 import { FormEvent, useEffect, useMemo, useState } from 'react';
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import type { RuleDraft } from '../api/rules';
-import '../styles/modal.styles.css';
 
 export type ConditionDraft = {
 	field: string;
@@ -115,36 +125,42 @@ export default function RuleModal({
 		await onSave(draft);
 	};
 
-	if (!open) return null;
-
 	return (
-		<div className="modal-backdrop" role="dialog" aria-modal="true">
-			<div className="modal">
-				<div className="modal__header">
-					<div>
-						<p className="eyebrow">{mode === 'create' ? 'New rule' : 'Edit rule'}</p>
-						<h2>{draft.name || (mode === 'create' ? 'Create rule' : 'Update rule')}</h2>
-					</div>
-					<button className="ghost-btn" type="button" onClick={onClose}>
-						Close
-					</button>
-				</div>
+		<Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
+			<DialogContent className="sm:max-w-3xl">
+				<DialogHeader>
+					<p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+						{mode === 'create' ? 'New rule' : 'Edit rule'}
+					</p>
+					<DialogTitle>{draft.name || (mode === 'create' ? 'Create rule' : 'Update rule')}</DialogTitle>
+					<DialogDescription className="text-slate-300">
+						Define routing details and required conditions.
+					</DialogDescription>
+				</DialogHeader>
 
-				<form className="modal__body" onSubmit={handleSubmit}>
-					<div className="form-grid">
-						<label className="field">
-							<span>Rule name</span>
-							<input
+				<form className="space-y-6" onSubmit={handleSubmit}>
+					<div className="grid gap-4 md:grid-cols-2">
+						<div className="space-y-1.5">
+							<label className="text-sm font-medium text-white" htmlFor="rule-name">
+								Rule name
+							</label>
+							<Input
+								id="rule-name"
 								type="text"
 								value={draft.name}
 								onChange={(e) => setDraft((prev) => ({ ...prev, name: e.target.value }))}
 								placeholder="e.g. Sales AU"
+								autoFocus
+								className="bg-slate-800/60 text-white border-slate-700/70 placeholder:text-slate-400 focus-visible:ring-slate-300/70"
 							/>
-						</label>
+						</div>
 
-						<label className="field">
-							<span>Assignee name</span>
-							<input
+						<div className="space-y-1.5">
+							<label className="text-sm font-medium text-white" htmlFor="assignee-name">
+								Assignee name
+							</label>
+							<Input
+								id="assignee-name"
 								type="text"
 								value={draft.assignee.name}
 								onChange={(e) =>
@@ -154,12 +170,16 @@ export default function RuleModal({
 									}))
 								}
 								placeholder="Jane Doe"
+								className="bg-slate-800/60 text-white border-slate-700/70 placeholder:text-slate-400 focus-visible:ring-slate-300/70"
 							/>
-						</label>
+						</div>
 
-						<label className="field">
-							<span>Assignee email</span>
-							<input
+						<div className="space-y-1.5">
+							<label className="text-sm font-medium text-white" htmlFor="assignee-email">
+								Assignee email
+							</label>
+							<Input
+								id="assignee-email"
 								type="email"
 								value={draft.assignee.email}
 								onChange={(e) =>
@@ -169,53 +189,74 @@ export default function RuleModal({
 									}))
 								}
 								placeholder="jane@acme.corp"
+								className="bg-slate-800/60 text-white border-slate-700/70 placeholder:text-slate-400 focus-visible:ring-slate-300/70"
 							/>
-						</label>
+						</div>
 
-						<label className="field checkbox">
+						<label
+							className="flex items-center gap-3 self-end rounded-md border border-input bg-muted/20 px-3 py-2 text-sm font-medium text-white shadow-sm"
+							htmlFor="rule-active"
+						>
 							<input
+								id="rule-active"
 								type="checkbox"
 								checked={draft.active}
 								onChange={(e) => setDraft((prev) => ({ ...prev, active: e.target.checked }))}
+								className="h-4 w-4 rounded border-input text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
 							/>
 							<span>Active</span>
 						</label>
 					</div>
 
-					<div className="form-grid">
-						<label className="field">
-							<span>Request type</span>
-							<input
+					<div className="grid gap-4 md:grid-cols-2">
+						<div className="space-y-1.5">
+							<label className="text-sm font-medium text-white" htmlFor="request-type">
+								Request type
+							</label>
+							<Input
+								id="request-type"
 								type="text"
 								value={String(conditionValue.requestType)}
 								onChange={(e) => updateCondition('requestType', e.target.value)}
 								placeholder="sales contract, employment_contract…"
+								className="bg-slate-800/60 text-white border-slate-700/70 placeholder:text-slate-400 focus-visible:ring-slate-300/70"
 							/>
-						</label>
+						</div>
 
-						<label className="field">
-							<span>Location</span>
-							<input
+						<div className="space-y-1.5">
+							<label className="text-sm font-medium text-white" htmlFor="location">
+								Location
+							</label>
+							<Input
+								id="location"
 								type="text"
 								value={String(conditionValue.location)}
 								onChange={(e) => updateCondition('location', e.target.value)}
 								placeholder="Australia, United States…"
+								className="bg-slate-800/60 text-white border-slate-700/70 placeholder:text-slate-400 focus-visible:ring-slate-300/70"
 							/>
-						</label>
+						</div>
 
-						<label className="field">
-							<span>Department</span>
-							<input
+						<div className="space-y-1.5">
+							<label className="text-sm font-medium text-white" htmlFor="department">
+								Department
+							</label>
+							<Input
+								id="department"
 								type="text"
 								value={String(conditionValue.department ?? '')}
 								onChange={(e) => updateCondition('department', e.target.value)}
 								placeholder="Sales, Marketing…"
+								className="bg-slate-800/60 text-white border-slate-700/70 placeholder:text-slate-400 focus-visible:ring-slate-300/70"
 							/>
-						</label>
+						</div>
 
-						<label className="field">
-							<span>Keywords (comma-separated, optional)</span>
-							<input
+						<div className="space-y-1.5">
+							<label className="text-sm font-medium text-white" htmlFor="keywords">
+								Keywords (comma-separated, optional)
+							</label>
+							<Input
+								id="keywords"
 								type="text"
 								value={
 									Array.isArray(conditionValue.keywords)
@@ -230,32 +271,51 @@ export default function RuleModal({
 									updateCondition('keywords', keywords, 'includes');
 								}}
 								placeholder="urgent, renewal…"
+								className="bg-slate-800/60 text-white border-slate-700/70 placeholder:text-slate-400 focus-visible:ring-slate-300/70"
 							/>
-						</label>
+						</div>
 					</div>
 
-					<label className="field">
-						<span>Notes (optional)</span>
-						<textarea
+					<div className="space-y-1.5">
+						<label className="text-sm font-medium text-white" htmlFor="notes">
+							Notes (optional)
+						</label>
+						<Textarea
+							id="notes"
 							value={draft.notes ?? ''}
 							onChange={(e) => setDraft((prev) => ({ ...prev, notes: e.target.value }))}
 							placeholder="Routing rationale or special cases"
 							rows={3}
+							className="min-h-28 bg-slate-800/60 text-white border-slate-700/70 placeholder:text-slate-400 focus-visible:ring-slate-300/70"
 						/>
-					</label>
-
-					{(localError || error) && <div className="notice error">{localError || error}</div>}
-
-					<div className="modal__footer">
-						<button className="ghost-btn" type="button" onClick={onClose} disabled={saving}>
-							Cancel
-						</button>
-						<button className="primary-btn" type="submit" disabled={saving}>
-							{saving ? 'Saving…' : mode === 'create' ? 'Create rule' : 'Save changes'}
-						</button>
 					</div>
+
+					{(localError || error) && (
+						<div className="rounded-md border border-destructive/50 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+							{localError || error}
+						</div>
+					)}
+
+					<DialogFooter>
+						<Button
+							type="button"
+							onClick={onClose}
+							disabled={saving}
+							variant="outline"
+							className="border-slate-700 bg-slate-900 text-white hover:bg-slate-800"
+						>
+							Cancel
+						</Button>
+						<Button
+							type="submit"
+							disabled={saving}
+							className="bg-slate-100 text-slate-900 hover:bg-slate-200 focus-visible:ring-slate-300"
+						>
+							{saving ? 'Saving…' : mode === 'create' ? 'Create rule' : 'Save changes'}
+						</Button>
+					</DialogFooter>
 				</form>
-			</div>
-		</div>
+			</DialogContent>
+		</Dialog>
 	);
 }
