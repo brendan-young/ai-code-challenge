@@ -1,6 +1,6 @@
 import { ChangeEvent, FormEvent, useEffect, useMemo, useRef, useState } from 'react';
-
-import '../styles/chat-page.styles.css';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8999';
 
@@ -117,36 +117,69 @@ export default function ChatPage() {
 	};
 
 	return (
-		<div className="chat-page">
-			<header className="chat-header">
-				<h1>Frontdoor</h1>
+		<div className="mx-auto flex w-full max-w-5xl flex-col gap-6 text-slate-100">
+			<header className="flex flex-col gap-1">
+				<h1 className="text-3xl font-bold text-white">Frontdoor</h1>
+				<p className="text-sm text-slate-400">
+					Start with your request type, department, and location to get routed.
+				</p>
 			</header>
 
-			<div className="chat-window">
-				{messages.length === 0 && <p className="placeholder">No messages yet... Make a request!</p>}
-				{messages.map((message) => (
-					<div key={message.id} className={`message message-${message.role}`}>
-						<span className="message-role">{message.role === 'user' ? 'You' : 'Assistant'}</span>
-						<p>{message.content || (message.role === 'assistant' && isStreaming ? '…' : '')}</p>
-					</div>
-				))}
+			<div className="flex min-h-[320px] max-h-[480px] flex-col gap-4 overflow-y-auto rounded-2xl bg-slate-900/70 p-6 shadow-[inset_0_1px_0_rgba(148,163,184,0.08)]">
+				{messages.length === 0 && (
+					<p className="m-auto text-center text-slate-500">No messages yet... Make a request!</p>
+				)}
+				{messages.map((message) => {
+					const isUser = message.role === 'user';
+					return (
+						<div
+							key={message.id}
+							className={`flex flex-col gap-1 rounded-xl p-4 shadow-[0_10px_30px_rgba(15,23,42,0.35)] ${
+								isUser ? 'self-end bg-sky-500/90 text-slate-900' : 'bg-slate-800/90'
+							}`}
+						>
+							<span
+								className={`text-[11px] font-semibold uppercase tracking-[0.08em] ${
+									isUser ? 'text-slate-900/70' : 'text-slate-400'
+								}`}
+							>
+								{isUser ? 'You' : 'Assistant'}
+							</span>
+							<p className="whitespace-pre-wrap text-sm leading-relaxed">
+								{message.content || (message.role === 'assistant' && isStreaming ? '…' : '')}
+							</p>
+						</div>
+					);
+				})}
 				<div ref={messagesEndRef} />
 			</div>
 
-			{error && <div className="chat-error">{error}</div>}
+			{error && (
+				<div className="rounded-xl border border-red-400/50 bg-red-500/15 px-4 py-3 text-red-100">
+					{error}
+				</div>
+			)}
 
-			<form className="chat-input" onSubmit={handleSubmit}>
-				<input
+			<form
+				className="flex flex-col gap-3 rounded-xl border border-slate-700/60 bg-slate-900/70 p-4 shadow-[inset_0_1px_0_rgba(148,163,184,0.08)] sm:flex-row sm:items-center"
+				onSubmit={handleSubmit}
+			>
+				<Input
 					id="chat-input"
 					type="text"
 					value={input}
 					onChange={handleInputChange}
 					placeholder="What legal request do you have?"
 					disabled={isStreaming}
+					className="bg-slate-900/80 text-white border-slate-700/70 placeholder:text-slate-500"
 				/>
-				<button type="submit" disabled={!canSubmit}>
+				<Button
+					type="submit"
+					disabled={!canSubmit}
+					className="bg-slate-100 text-slate-900 hover:bg-slate-200 shadow-md disabled:opacity-60 disabled:shadow-none"
+				>
 					{isStreaming ? 'Thinking…' : 'Send'}
-				</button>
+				</Button>
 			</form>
 		</div>
 	);
