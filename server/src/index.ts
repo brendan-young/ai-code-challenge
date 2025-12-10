@@ -18,7 +18,7 @@ if (!process.env.OPENAI_API_KEY) {
 	console.warn('Warning: OPENAI_API_KEY is not set. Streaming requests will fail.');
 }
 
-const app = express();
+export const app = express();
 const port = Number.parseInt(process.env.PORT ?? '5000', 10);
 
 app.use(cors());
