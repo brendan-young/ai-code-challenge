@@ -177,27 +177,31 @@ ${rulesSummary}
 	}
 });
 
-// GET all
+// GET all rules
 app.get('/api/rules', async (_req, res) => res.json(await listRules()));
 
-// POST create
+// POST create rule
 app.post('/api/rules', async (req: Request, res: Response) => {
 	const rule = await createRule(req.body); // add validation here
 	res.status(201).json(rule);
 });
 
-// PUT update
+// PUT update rule
 app.put('/api/rules/:id', async (req: Request, res: Response) => {
 	const updated = await updateRule(req.params.id, req.body);
-	if (!updated) return res.status(404).json({ error: 'Not found' });
-	res.json(updated);
+	if (!updated) {
+		return res.status(404).json({ error: 'Not found' });
+	}
+	return res.json(updated);
 });
 
-// DELETE
+// DELETE delete rule
 app.delete('/api/rules/:id', async (req: Request, res: Response) => {
 	const ok = await deleteRule(req.params.id);
-	if (!ok) return res.status(404).json({ error: 'Not found' });
-	res.status(204).end();
+	if (!ok) {
+		return res.status(404).json({ error: 'Not found' });
+	}
+	return res.status(204).end();
 });
 
 app.listen(port, () => {
