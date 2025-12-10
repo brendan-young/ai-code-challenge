@@ -82,20 +82,22 @@ app.post('/api/chat', async (req: Request, res: Response) => {
 
 	const rules = await listRules(); // from rules service
 
-	const rulesSummary =
-		rules
+	const activeRules = rules.filter((rule) => rule.active);
+	const inactiveRules = rules.filter((rule) => !rule.active);
+
+	const formatRule = (rule: Rule) =>
+		`-  ${rule.name}: IF ${rule.conditions
 			.map(
-				(rule: Rule) =>
-					`-  ${rule.name}: IF ${rule.conditions
-						.map(
-							(condition) =>
-								`${condition.field} ${condition.operator} ${
-									Array.isArray(condition.value) ? condition.value.join(', ') : condition.value
-								}`
-						)
-						.join(' AND ')} THEN ${rule.assignee.email}`
+				(condition) =>
+					`${condition.field} ${condition.operator} ${
+						Array.isArray(condition.value) ? condition.value.join(', ') : condition.value
+					}`
 			)
-			.join('\n') || 'No active rules. Use fallback contact: legal@acme.corp';
+			.join(' AND ')} THEN ${rule.assignee.email}`;
+
+	const rulesSummary =
+		activeRules.map(formatRule).join('\n') || 'No active rules. Use fallback contact: legal@acme.corp';
+	const inactiveSummary = inactiveRules.map(formatRule).join('\n') || 'None';
 
 	const systemPrompt = `
 Input format:
@@ -103,13 +105,16 @@ Input format:
 - Normalize case/spacing; treat “legal” and “Legal” as the same.
 
 Rule handling:
-- Match the triple against the rules below (case-insensitive compares for equals/oneOf; includes for keywords).
-- If a rule matches, answer with a short sentance that includes the department, location and requestType. Do NOT ask for more info. Example: "For Sales contract reviews in Australia email xyz@acme.corp"
+- Match the triple against the ACTIVE rules below (case-insensitive compares for equals/oneOf; includes for keywords).
+- If a rule matches and is active, answer with a short sentence that includes the department, location and requestType. Do NOT ask for more info. Example: "For Sales contract reviews in Australia email xyz@acme.corp"
+- If a rule matches but is INACTIVE (see inactive list), respond exactly: "Rule identified but is set to inactive - please reach out to legal@acme.corp".
 - If no rule matches but all three fields are present, return the fallback contact: legal@acme.com.
 - If fewer than three fields are present, ask only for the missing fields (request type, department, location).
 If no rule matches, use fallback contact legal@acme.com.
-Rules:
+Active rules:
 ${rulesSummary}
+Inactive rules:
+${inactiveSummary}
 `;
 
 	const chatMessages: ResponseInput = [
